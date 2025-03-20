@@ -1,4 +1,4 @@
-import { ForbiddenException } from '@nestjs/common';
+import { ForbiddenException, BadRequestException } from '@nestjs/common';
 import {
   Args,
   Mutation,
@@ -11,20 +11,17 @@ import {
 import { PubSub } from 'graphql-subscriptions';
 import { SendMessageInput } from './dto/send-message-input';
 import { MessagesArgs } from './dto/messages.args';
-import { Message } from './models/message.model';
-import { encode, MessagesService } from './messages.service';
-import { MessageEdge, PaginatedMessage } from './dto/paginated-message';
+import { Message } from './dto/message';
+import { encode, MessageRecord, MessagesService } from './messages.service';
+import { MessageEdge, MessageConnection } from './dto/message-connection';
 import { ChatsService } from '../chats/chats.service';
 import { SendMessageResponse } from './dto/send-message-response';
-import { UsersService } from '../users/users.service';
-import { RemoveMessageResponse } from './dto/remove-message-response';
-import { MessageRemovedResponse } from './dto/message-removed-response';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
 
 const pubSub = new PubSub();
 
-const filterRecipient = (payload, variables, context) => {
+export const filterRecipient = (payload, variables, context) => {
   return (
     (context?.req?.extra?.user.id === payload.userID ||
       context?.user?.id === payload.userID) &&
@@ -32,22 +29,35 @@ const filterRecipient = (payload, variables, context) => {
   );
 };
 
+const mapMessageEdge = (message: MessageRecord) => {
+  const messageNode: Message = {
+    id: message.id,
+    creationDate: message.creationDate,
+    text: message.text,
+    senderID: message.senderID,
+  };
+
+  return {
+    cursor: encode(message.creationDate.toISOString()),
+    node: messageNode,
+  };
+};
+
 @Resolver((of) => Message)
 export class MessagesResolver {
   constructor(
     private readonly messagesService: MessagesService,
     private readonly chatsService: ChatsService,
-    private readonly usersService: UsersService,
   ) {}
 
   @UseGuards(new AuthGuard())
-  @Query((returns) => PaginatedMessage)
+  @Query((returns) => MessageConnection)
   async messages(
     @Context() context: any,
     @Args() messagesArgs: MessagesArgs,
-  ): Promise<PaginatedMessage> {
-    if (!context.user) {
-      throw new ForbiddenException();
+  ): Promise<MessageConnection> {
+    if (!messagesArgs.last === !messagesArgs.first) {
+      throw new BadRequestException();
     }
 
     const chat = await this.chatsService.findOneById(messagesArgs.chatID);
@@ -56,39 +66,18 @@ export class MessagesResolver {
       throw new ForbiddenException();
     }
 
-    const users = await Promise.all(
-      chat.participants.map((id) => this.usersService.findOneById(id)),
-    );
+    const { result, hasPreviousPage, endCursor, startCursor, hasNextPage } =
+      await this.messagesService.getPagintated(messagesArgs);
 
-    const userNamesMap = users.reduce((acc, currentValue) => {
-      acc[currentValue.id] = currentValue.name;
-      return acc;
-    }, {});
-
-    const messages = await this.messagesService.findAll(messagesArgs);
-
-    const edges = messages.map((message) => {
-      const messageNode: Message = {
-        senderName: userNamesMap[message.senderID],
-        id: message.id,
-        creationDate: message.creationDate,
-        text: message.text,
-        senderID: message.senderID,
-      };
-
-      return {
-        cursor: encode(message.creationDate.toISOString()),
-        node: messageNode,
-      };
-    });
+    const edges = result.map(mapMessageEdge);
 
     return {
       edges,
       pageInfo: {
-        hasNextPage: true,
-        hasPreviousPage: true,
-        startCursor: '',
-        endCursor: '',
+        hasNextPage,
+        hasPreviousPage,
+        startCursor,
+        endCursor,
       },
     };
   }
@@ -100,17 +89,10 @@ export class MessagesResolver {
     @Args('input') input: SendMessageInput,
   ): Promise<SendMessageResponse> {
     const { user } = context;
-    if (!user) {
-      throw new ForbiddenException();
-    }
 
     const chat = await this.chatsService.findOneById(input.chatID);
 
-    if (!chat) {
-      throw new ForbiddenException();
-    }
-
-    if (!chat.participants.includes(user.id)) {
+    if (!chat || !chat.participants.includes(user.id)) {
       throw new ForbiddenException();
     }
 
@@ -120,18 +102,7 @@ export class MessagesResolver {
       senderID: user.id,
     });
 
-    const messageNode: Message = {
-      senderName: user.name,
-      id: message.id,
-      creationDate: message.creationDate,
-      text: message.text,
-      senderID: user.id,
-    };
-
-    const messageEdge = {
-      cursor: encode(message.creationDate.toISOString()),
-      node: messageNode,
-    };
+    const messageEdge = mapMessageEdge(message);
 
     chat.participants
       .filter((participant) => participant !== user.id)
@@ -149,24 +120,16 @@ export class MessagesResolver {
   }
 
   @UseGuards(new AuthGuard())
-  @Mutation((returns) => RemoveMessageResponse)
-  async removeMessage(
+  @Mutation((returns) => [ID])
+  async removeMessages(
     @Context() context: any,
-    @Args('id',  { type: () => ID }) id: string,
-  ): Promise<RemoveMessageResponse> {
+    @Args('id', { type: () => ID }) id: string,
+  ): Promise<string[]> {
     const { user } = context;
-
-    if (!user) {
-      throw new ForbiddenException();
-    }
 
     const message = await this.messagesService.findOneById(id);
 
-    if (!message) {
-      throw new ForbiddenException();
-    }
-
-    if (message.senderID !== user.id) {
+    if (!message || message.senderID !== user.id) {
       throw new ForbiddenException();
     }
 
@@ -178,17 +141,47 @@ export class MessagesResolver {
       .filter((participant) => participant !== user.id)
       .forEach((userID) => {
         pubSub.publish('messageRemoved', {
-          messageRemoved: {
-            messageIDs: [removedMessageID],
-          },
+          messageRemoved: [removedMessageID],
           chatID: chat.id,
           userID,
         });
       });
 
-    return {
-      messageID: removedMessageID,
-    };
+    return [removedMessageID];
+  }
+
+  @UseGuards(new AuthGuard())
+  @Mutation((returns) => Boolean)
+  async setTyping(
+    @Context() context: any,
+    @Args('chatID') chatID: string,
+  ): Promise<boolean> {
+    const { user } = context;
+    const chat = await this.chatsService.findOneById(chatID);
+
+    if (!chat || !chat.participants.includes(user.id)) {
+      throw new ForbiddenException();
+    }
+
+    chat.participants
+      .filter((participant) => participant !== user.id)
+      .forEach((userID) => {
+        pubSub.publish('isTyping', {
+          isTyping: user.id,
+          chatID: chat.id,
+          userID,
+        });
+      });
+
+    return true;
+  }
+
+  @UseGuards(new AuthGuard())
+  @Subscription((returns) => ID, {
+    filter: filterRecipient,
+  })
+  isTyping(@Args('chatID') chatID: string) {
+    return pubSub.asyncIterableIterator('isTyping');
   }
 
   @UseGuards(new AuthGuard())
@@ -200,11 +193,8 @@ export class MessagesResolver {
   }
 
   @UseGuards(new AuthGuard())
-  @Subscription((returns) => MessageRemovedResponse, {
-    filter: (payload, variables, context) => {
-      console.log(payload, variables, context);
-      return true;
-    },
+  @Subscription((returns) => [ID], {
+    filter: filterRecipient,
   })
   messageRemoved(@Args('chatID') chatID: string) {
     return pubSub.asyncIterableIterator('messageRemoved');

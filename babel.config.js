@@ -1,4 +1,4 @@
 module.exports = {
-    "presets": ["babel-preset-expo"],
-    "plugins": ["relay"]
-}
+  presets: ['module:@react-native/babel-preset'],
+  plugins: ['relay'],
+};

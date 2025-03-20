@@ -1,50 +1,86 @@
-# Welcome to your Expo app 👋
+# Messenger Example
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A real-time messaging application built with React Native and NestJS, featuring GraphQL subscriptions for live updates.
 
-## Get started
+![plot](./demo.png)
 
-1. Install dependencies
 
-   ```bash
-   npm install
-   ```
+## Features
 
-2. Start the app
+- Real-time messaging with GraphQL subscriptions
+- User authentication
+- Chat rooms
+- Message history
+- Typing indicators
+- Message updates and deletions
+- Modern UI with React Native
+- WebRTC support
 
-   ```bash
-    npx expo start
-   ```
+## Tech Stack
 
-In the output, you'll find options to open the app in a
+### Frontend
+- React Native 0.77.2
+- React 18.3.1
+- GraphQL (Relay 18.2.0)
+- TypeScript 5.0.4
+- React Navigation 7.x
+- React Native WebRTC
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### Backend
+- NestJS 10.x
+- GraphQL (Apollo Server 4.x)
+- WebSocket subscriptions
+- TypeScript 5.1.3
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Prerequisites
 
-## Get a fresh project
+- Node.js >= 18
+- iOS Simulator (for iOS development)
+- Android Studio (for Android development)
+- Xcode (for iOS development)
 
-When you're ready, run:
+## Getting Started
 
+1. Install dependencies:
 ```bash
-npm run reset-project
+# Install frontend dependencies
+npm install
+
+# Install backend dependencies
+cd backend && npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. Start the development servers:
+```bash
+# Start backend (in one terminal)
+npm run backend
 
-## Learn more
+# Start frontend (in another terminal)
+npm run ios     # For iOS
+npm run android # For Android
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+3. Login as either User 1 or User 2 to test the messaging functionality
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Development
 
-## Join the community
+- Backend runs on NestJS with GraphQL
+- GraphQL schema is automatically generated
+- Relay compiler watches for changes
+- TypeScript for type safety
+- ESLint and Prettier for code formatting
 
-Join our community of developers creating universal apps.
+## Scripts
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### Frontend
+- `npm run ios` - Run iOS app
+- `npm run android` - Run Android app
+- `npm run relay` - Run Relay compiler
+- `npm run lint` - Run ESLint
+- `npm test` - Run tests
+
+### Backend
+- `npm run start:dev` - Run backend in development mode
+- `npm run build` - Build backend
+- `npm run test` - Run tests
+- `npm run lint` - Run ESLint

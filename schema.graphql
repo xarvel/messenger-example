@@ -1,18 +1,16 @@
 # Indicates exactly one field must be supplied and this field must not be `null`.
 directive @oneOf on INPUT_OBJECT
 
-# message
 type Message {
   id: ID!
   text: String!
   creationDate: Date!
-  senderName: String!
   senderID: String!
 }
 
 type PageInfo {
-  startCursor: String!
-  endCursor: String!
+  startCursor: String
+  endCursor: String
   hasNextPage: Boolean!
   hasPreviousPage: Boolean!
 }
@@ -22,7 +20,7 @@ type MessageEdge {
   node: Message!
 }
 
-type PaginatedMessage {
+type MessageConnection {
   edges: [MessageEdge!]!
   pageInfo: PageInfo!
 }
@@ -31,16 +29,30 @@ type SendMessageResponse {
   messageEdge: MessageEdge!
 }
 
-type RemoveMessageResponse {
-  messageID: ID!
+type User {
+  id: ID!
+  name: String!
 }
 
-type MessageRemovedResponse {
-  messageIDs: [ID!]!
+type Chat {
+  id: ID!
+  participants: [User!]!
 }
 
 type Viewer {
-  id: String!
+  currentUserID: String!
+}
+
+type CallSignal {
+  type: CallSignalType!
+  payload: String!
+  chatID: String!
+}
+
+enum CallSignalType {
+  ICE_CANDIDATE
+  OFFER
+  ANSWER
 }
 
 # Date custom scalar type
@@ -48,12 +60,22 @@ scalar Date
 
 type Query {
   viewer: Viewer!
-  messages(last: Int! = 0, before: String, chatID: ID!): PaginatedMessage!
+  chat(id: ID!): Chat!
+  messages(
+    last: Int
+    before: String
+    first: Int
+    after: String
+    chatID: ID!
+  ): MessageConnection!
 }
 
 type Mutation {
   sendMessage(input: SendMessageInput!): SendMessageResponse!
-  removeMessage(id: String!): RemoveMessageResponse!
+  removeMessages(id: ID!): [ID!]!
+  setTyping(chatID: String!): Boolean!
+  sendCallSignal(input: CallSignalInput!): Boolean!
+  endCall(chatID: String!): Boolean!
 }
 
 input SendMessageInput {
@@ -61,8 +83,17 @@ input SendMessageInput {
   chatID: ID!
 }
 
+input CallSignalInput {
+  type: CallSignalType!
+  payload: String!
+  chatID: String!
+}
+
 type Subscription {
+  isTyping(chatID: String!): ID!
   messageAdded(chatID: String!): MessageEdge!
-  messageRemoved(chatID: String!): MessageRemovedResponse!
+  messageRemoved(chatID: String!): [ID!]!
   messageUpdated(chatID: String!): Message!
+  callSignalReceived(chatID: String!): CallSignal!
+  callEnded(chatID: String!): Boolean!
 }

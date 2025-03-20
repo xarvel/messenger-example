@@ -7,6 +7,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { AuthService } from './auth/auth.service';
 import { ViewerModule } from './viewer/viewer.module';
+import { CallsModule } from './calls/calls.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ViewerModule } from './viewer/viewer.module';
     UsersModule,
     ChatsModule,
     MessagesModule,
+    CallsModule,
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
       imports: [AuthModule],

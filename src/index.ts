@@ -1,1 +1,0 @@
-export { MessengerPage } from "./MessengerPage";

@@ -13,11 +13,11 @@ export class UsersService {
   private users: User[] = [
     {
       id: USER_ID_1,
-      name: 'Александр',
+      name: 'Bob',
     },
     {
       id: USER_ID_2,
-      name: 'Катя',
+      name: 'Alice',
     },
   ];
 
