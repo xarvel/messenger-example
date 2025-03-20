@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<a40615b21c54175eda1cea4db5d5fb7e>>
+ * @generated SignedSource<<bcb4a576ef1dac67c2eb399bd5b421c2>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,7 +10,7 @@
 
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type MessagesList_query$data = {
+export type MessagesList_messages$data = {
   readonly messages: {
     readonly edges: ReadonlyArray<{
       readonly cursor: string;
@@ -19,11 +19,11 @@ export type MessagesList_query$data = {
       };
     }>;
   };
-  readonly " $fragmentType": "MessagesList_query";
+  readonly " $fragmentType": "MessagesList_messages";
 };
-export type MessagesList_query$key = {
-  readonly " $data"?: MessagesList_query$data;
-  readonly " $fragmentSpreads": FragmentRefs<"MessagesList_query">;
+export type MessagesList_messages$key = {
+  readonly " $data"?: MessagesList_messages$data;
+  readonly " $fragmentSpreads": FragmentRefs<"MessagesList_messages">;
 };
 
 const node: ReaderFragment = (function(){
@@ -35,35 +35,48 @@ return {
     {
       "defaultValue": null,
       "kind": "LocalArgument",
-      "name": "chatID"
-    },
-    {
-      "defaultValue": 10,
-      "kind": "LocalArgument",
-      "name": "count"
+      "name": "after"
     },
     {
       "defaultValue": null,
       "kind": "LocalArgument",
-      "name": "cursor"
+      "name": "before"
+    },
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "chatID"
+    },
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "first"
+    },
+    {
+      "defaultValue": 20,
+      "kind": "LocalArgument",
+      "name": "last"
     }
   ],
   "kind": "Fragment",
   "metadata": {
     "connection": [
       {
-        "count": "count",
-        "cursor": "cursor",
-        "direction": "backward",
+        "count": null,
+        "cursor": null,
+        "direction": "bidirectional",
         "path": (v0/*: any*/)
       }
     ],
     "refetch": {
       "connection": {
-        "forward": null,
+        "forward": {
+          "count": "first",
+          "cursor": "after"
+        },
         "backward": {
-          "count": "count",
-          "cursor": "cursor"
+          "count": "last",
+          "cursor": "before"
         },
         "path": (v0/*: any*/)
       },
@@ -71,7 +84,7 @@ return {
       "operation": require('./MessagesListPaginationQuery.graphql')
     }
   },
-  "name": "MessagesList_query",
+  "name": "MessagesList_messages",
   "selections": [
     {
       "alias": "messages",
@@ -82,7 +95,7 @@ return {
           "variableName": "chatID"
         }
       ],
-      "concreteType": "PaginatedMessage",
+      "concreteType": "MessageConnection",
       "kind": "LinkedField",
       "name": "__MessagesListQuery_messages_connection",
       "plural": false,
@@ -140,6 +153,20 @@ return {
               "alias": null,
               "args": null,
               "kind": "ScalarField",
+              "name": "endCursor",
+              "storageKey": null
+            },
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "hasNextPage",
+              "storageKey": null
+            },
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
               "name": "hasPreviousPage",
               "storageKey": null
             },
@@ -162,6 +189,6 @@ return {
 };
 })();
 
-(node as any).hash = "248c360ebf052978b3c3ba4acbe15ea8";
+(node as any).hash = "b9e860deb0efde92c98c2cd915d03559";
 
 export default node;

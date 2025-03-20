@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<bb0be11d8443521019d2aae4a2adb26d>>
+ * @generated SignedSource<<f4a3326ed0a81487d3fea2037529cff5>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,12 +11,14 @@
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type MessagesListPaginationQuery$variables = {
+  after?: string | null | undefined;
+  before?: string | null | undefined;
   chatID: string;
-  count?: number | null | undefined;
-  cursor?: string | null | undefined;
+  first?: number | null | undefined;
+  last?: number | null | undefined;
 };
 export type MessagesListPaginationQuery$data = {
-  readonly " $fragmentSpreads": FragmentRefs<"MessagesList_query">;
+  readonly " $fragmentSpreads": FragmentRefs<"MessagesList_messages">;
 };
 export type MessagesListPaginationQuery = {
   response: MessagesListPaginationQuery$data;
@@ -28,35 +30,54 @@ var v0 = [
   {
     "defaultValue": null,
     "kind": "LocalArgument",
-    "name": "chatID"
-  },
-  {
-    "defaultValue": 10,
-    "kind": "LocalArgument",
-    "name": "count"
+    "name": "after"
   },
   {
     "defaultValue": null,
     "kind": "LocalArgument",
-    "name": "cursor"
+    "name": "before"
+  },
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "chatID"
+  },
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "first"
+  },
+  {
+    "defaultValue": 20,
+    "kind": "LocalArgument",
+    "name": "last"
   }
 ],
-v1 = {
-  "kind": "Variable",
-  "name": "chatID",
-  "variableName": "chatID"
-},
-v2 = [
+v1 = [
+  {
+    "kind": "Variable",
+    "name": "after",
+    "variableName": "after"
+  },
   {
     "kind": "Variable",
     "name": "before",
-    "variableName": "cursor"
+    "variableName": "before"
   },
-  (v1/*: any*/),
+  {
+    "kind": "Variable",
+    "name": "chatID",
+    "variableName": "chatID"
+  },
+  {
+    "kind": "Variable",
+    "name": "first",
+    "variableName": "first"
+  },
   {
     "kind": "Variable",
     "name": "last",
-    "variableName": "count"
+    "variableName": "last"
   }
 ];
 return {
@@ -67,21 +88,9 @@ return {
     "name": "MessagesListPaginationQuery",
     "selections": [
       {
-        "args": [
-          (v1/*: any*/),
-          {
-            "kind": "Variable",
-            "name": "count",
-            "variableName": "count"
-          },
-          {
-            "kind": "Variable",
-            "name": "cursor",
-            "variableName": "cursor"
-          }
-        ],
+        "args": (v1/*: any*/),
         "kind": "FragmentSpread",
-        "name": "MessagesList_query"
+        "name": "MessagesList_messages"
       }
     ],
     "type": "Query",
@@ -95,8 +104,8 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v2/*: any*/),
-        "concreteType": "PaginatedMessage",
+        "args": (v1/*: any*/),
+        "concreteType": "MessageConnection",
         "kind": "LinkedField",
         "name": "messages",
         "plural": false,
@@ -142,13 +151,6 @@ return {
                     "alias": null,
                     "args": null,
                     "kind": "ScalarField",
-                    "name": "senderName",
-                    "storageKey": null
-                  },
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
                     "name": "senderID",
                     "storageKey": null
                   },
@@ -184,6 +186,20 @@ return {
                 "alias": null,
                 "args": null,
                 "kind": "ScalarField",
+                "name": "endCursor",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "hasNextPage",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
                 "name": "hasPreviousPage",
                 "storageKey": null
               },
@@ -202,7 +218,7 @@ return {
       },
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v1/*: any*/),
         "filters": [
           "chatID"
         ],
@@ -214,16 +230,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "b18fd69ac5ab5ff0bbc2ade9c7bbc84d",
+    "cacheID": "e8b3defea77036b82c4b95cc36375fad",
     "id": null,
     "metadata": {},
     "name": "MessagesListPaginationQuery",
     "operationKind": "query",
-    "text": "query MessagesListPaginationQuery(\n  $chatID: ID!\n  $count: Int = 10\n  $cursor: String\n) {\n  ...MessagesList_query_45fdEv\n}\n\nfragment MessageItem_data on Message {\n  id\n  text\n  senderName\n  senderID\n  creationDate\n}\n\nfragment MessagesList_query_45fdEv on Query {\n  messages(last: $count, before: $cursor, chatID: $chatID) {\n    edges {\n      cursor\n      node {\n        ...MessageItem_data\n        id\n        __typename\n      }\n    }\n    pageInfo {\n      hasPreviousPage\n      startCursor\n    }\n  }\n}\n"
+    "text": "query MessagesListPaginationQuery(\n  $after: String\n  $before: String\n  $chatID: ID!\n  $first: Int\n  $last: Int = 20\n) {\n  ...MessagesList_messages_z41N7\n}\n\nfragment MessageItem_data on Message {\n  id\n  text\n  senderID\n  creationDate\n}\n\nfragment MessagesList_messages_z41N7 on Query {\n  messages(last: $last, before: $before, first: $first, after: $after, chatID: $chatID) {\n    edges {\n      cursor\n      node {\n        ...MessageItem_data\n        id\n        __typename\n      }\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n      hasPreviousPage\n      startCursor\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "248c360ebf052978b3c3ba4acbe15ea8";
+(node as any).hash = "b9e860deb0efde92c98c2cd915d03559";
 
 export default node;

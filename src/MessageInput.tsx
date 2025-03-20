@@ -2,15 +2,18 @@ import React, { FC, useState } from "react";
 import { Button, StyleSheet, TextInput, View } from "react-native";
 import { useMutation, graphql } from "react-relay";
 import { MessageInputMutation } from "@/src/__generated__/MessageInputMutation.graphql";
+import { palette } from "@/src/palette";
 
 type MessageInputProps = {
   connectionID: string;
   chatID: string;
+  onType: () => void;
 };
 
 export const MessageInput: FC<MessageInputProps> = ({
   connectionID,
   chatID,
+  onType,
 }) => {
   const [commit] = useMutation<MessageInputMutation>(graphql`
     mutation MessageInputMutation(
@@ -18,7 +21,7 @@ export const MessageInput: FC<MessageInputProps> = ({
       $connections: [ID!]!
     ) {
       sendMessage(input: $input) {
-        messageEdge @prependEdge(connections: $connections) {
+        messageEdge @appendEdge(connections: $connections) {
           cursor
           node {
             ...MessageItem_data
@@ -39,12 +42,7 @@ export const MessageInput: FC<MessageInputProps> = ({
         },
         connections: [connectionID],
       },
-      onError: (error) => {
-        console.log("error", error);
-      },
-      onUnsubscribe: ()=> {},
-      onCompleted: (response, errors) => {
-        console.log("response", response);
+      onCompleted: () => {
         setText("");
       },
     });
@@ -57,13 +55,8 @@ export const MessageInput: FC<MessageInputProps> = ({
         placeholder="Сообщение..."
         value={text}
         onChangeText={setText}
-        style={{
-          padding: 10,
-          overflow: "visible",
-          color: "#000",
-          flex: 1,
-          flexGrow: 1,
-        }}
+        onKeyPress={() => onType()}
+        style={styles.input}
       />
 
       <View
@@ -71,7 +64,11 @@ export const MessageInput: FC<MessageInputProps> = ({
           flexShrink: 0,
         }}
       >
-        <Button title="Отправить" onPress={handleSendMessage} />
+        <Button
+          title="Отправить"
+          disabled={!text}
+          onPress={handleSendMessage}
+        />
       </View>
     </View>
   );
@@ -79,9 +76,16 @@ export const MessageInput: FC<MessageInputProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#fff",
+    backgroundColor: palette.white,
     padding: 16,
     width: "100%",
     flexDirection: "row",
+  },
+  input: {
+    padding: 10,
+    overflow: "visible",
+    color: palette.textBlack,
+    flex: 1,
+    flexGrow: 1,
   },
 });

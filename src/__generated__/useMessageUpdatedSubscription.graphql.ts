@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<d2a0beedd1d8730ef2e528e2860be86e>>
+ * @generated SignedSource<<d9daaeda60f48e0dc8caa6b573514960>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,17 +10,17 @@
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type useMessageUpdatedSubscriptionSubscription$variables = {
+export type useMessageUpdatedSubscription$variables = {
   chatID: string;
 };
-export type useMessageUpdatedSubscriptionSubscription$data = {
+export type useMessageUpdatedSubscription$data = {
   readonly messageUpdated: {
     readonly " $fragmentSpreads": FragmentRefs<"MessageItem_data">;
   };
 };
-export type useMessageUpdatedSubscriptionSubscription = {
-  response: useMessageUpdatedSubscriptionSubscription$data;
-  variables: useMessageUpdatedSubscriptionSubscription$variables;
+export type useMessageUpdatedSubscription = {
+  response: useMessageUpdatedSubscription$data;
+  variables: useMessageUpdatedSubscription$variables;
 };
 
 const node: ConcreteRequest = (function(){
@@ -43,7 +43,7 @@ return {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "useMessageUpdatedSubscriptionSubscription",
+    "name": "useMessageUpdatedSubscription",
     "selections": [
       {
         "alias": null,
@@ -69,7 +69,7 @@ return {
   "operation": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "useMessageUpdatedSubscriptionSubscription",
+    "name": "useMessageUpdatedSubscription",
     "selections": [
       {
         "alias": null,
@@ -97,13 +97,6 @@ return {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
-            "name": "senderName",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
             "name": "senderID",
             "storageKey": null
           },
@@ -120,16 +113,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "e0da116fddc14b062114f5fef22047c3",
+    "cacheID": "8f5708d985a9c469bb163f5c8f2e9af9",
     "id": null,
     "metadata": {},
-    "name": "useMessageUpdatedSubscriptionSubscription",
+    "name": "useMessageUpdatedSubscription",
     "operationKind": "subscription",
-    "text": "subscription useMessageUpdatedSubscriptionSubscription(\n  $chatID: String!\n) {\n  messageUpdated(chatID: $chatID) {\n    ...MessageItem_data\n    id\n  }\n}\n\nfragment MessageItem_data on Message {\n  id\n  text\n  senderName\n  senderID\n  creationDate\n}\n"
+    "text": "subscription useMessageUpdatedSubscription(\n  $chatID: String!\n) {\n  messageUpdated(chatID: $chatID) {\n    ...MessageItem_data\n    id\n  }\n}\n\nfragment MessageItem_data on Message {\n  id\n  text\n  senderID\n  creationDate\n}\n"
   }
 };
 })();
 
-(node as any).hash = "094ad2752b30b80aed43cf1fdbac1fa3";
+(node as any).hash = "428ea45c3bceef50c0893db0bd59f654";
 
 export default node;

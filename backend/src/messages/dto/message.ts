@@ -1,6 +1,6 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 
-@ObjectType({ description: 'message' })
+@ObjectType()
 export class Message {
   @Field(type => ID)
   id: string;
@@ -10,9 +10,6 @@ export class Message {
 
   @Field()
   creationDate: Date;
-
-  @Field()
-  senderName: string
 
   @Field()
   senderID: string

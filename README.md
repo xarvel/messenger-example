@@ -1,50 +1,76 @@
-# Welcome to your Expo app 👋
+# Messenger Example
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A real-time messaging application built with React Native (Expo) and NestJS, featuring GraphQL subscriptions for live updates.
 
-## Get started
+## Features
 
-1. Install dependencies
+- Real-time messaging with GraphQL subscriptions
+- User authentication
+- Chat rooms
+- Message history
+- Typing indicators
+- Message updates and deletions
+- Modern UI with React Native
 
-   ```bash
-   npm install
-   ```
+## Tech Stack
 
-2. Start the app
+### Frontend
+- React Native (Expo)
+- GraphQL (Relay)
+- TypeScript
+- Expo Router
+- React Native Reanimated
 
-   ```bash
-    npx expo start
-   ```
+### Backend
+- NestJS
+- GraphQL (Apollo)
+- WebSocket subscriptions
+- TypeScript
 
-In the output, you'll find options to open the app in a
+## Project Structure
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+messenger-example/
+├── app/                    # Expo Router pages
+├── src/                    # Frontend source code
+│   ├── __generated__/     # Generated Relay types
+│   ├── transport/         # GraphQL client setup
+│   └── components/        # React components
+└── backend/               # NestJS backend
+    └── src/
+        ├── auth/         # Authentication
+        ├── chats/        # Chat management
+        ├── messages/     # Message handling
+        ├── users/        # User management
+        └── viewer/       # Current user context
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Getting Started
 
-## Learn more
+1. Install dependencies:
+```bash
+# Install frontend dependencies
+npm install
 
-To learn more about developing your project with Expo, look at the following resources:
+# Install backend dependencies
+cd backend && npm install
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+2. Start the development servers:
+```bash
+# Start backend (in one terminal)
+npm run backend
 
-## Join the community
+# Start frontend (in another terminal)
+npm run ios     # For iOS
+npm run android # For Android
+```
 
-Join our community of developers creating universal apps.
+3. Login as either User 1 or User 2 to test the messaging functionality
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Development
+
+- Frontend runs on Expo
+- Backend runs on NestJS with GraphQL
+- GraphQL schema is automatically generated
+- Relay compiler watches for changes

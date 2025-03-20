@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<36335191e335be5d3776591c899e76be>>
+ * @generated SignedSource<<bd7e8dfbb9b84cdd4389d60cda456c98>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,11 +10,11 @@
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type useMessageAddedSubscriptionSubscription$variables = {
+export type useMessageAddedSubscription$variables = {
   chatID: string;
   connections: ReadonlyArray<string>;
 };
-export type useMessageAddedSubscriptionSubscription$data = {
+export type useMessageAddedSubscription$data = {
   readonly messageAdded: {
     readonly cursor: string;
     readonly node: {
@@ -22,9 +22,9 @@ export type useMessageAddedSubscriptionSubscription$data = {
     };
   };
 };
-export type useMessageAddedSubscriptionSubscription = {
-  response: useMessageAddedSubscriptionSubscription$data;
-  variables: useMessageAddedSubscriptionSubscription$variables;
+export type useMessageAddedSubscription = {
+  response: useMessageAddedSubscription$data;
+  variables: useMessageAddedSubscription$variables;
 };
 
 const node: ConcreteRequest = (function(){
@@ -59,7 +59,7 @@ return {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "useMessageAddedSubscriptionSubscription",
+    "name": "useMessageAddedSubscription",
     "selections": [
       {
         "alias": null,
@@ -97,7 +97,7 @@ return {
   "operation": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "useMessageAddedSubscriptionSubscription",
+    "name": "useMessageAddedSubscription",
     "selections": [
       {
         "alias": null,
@@ -134,13 +134,6 @@ return {
                 "alias": null,
                 "args": null,
                 "kind": "ScalarField",
-                "name": "senderName",
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
                 "name": "senderID",
                 "storageKey": null
               },
@@ -161,7 +154,7 @@ return {
         "alias": null,
         "args": (v1/*: any*/),
         "filters": null,
-        "handle": "prependEdge",
+        "handle": "appendEdge",
         "key": "",
         "kind": "LinkedHandle",
         "name": "messageAdded",
@@ -176,16 +169,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "c9ba27dbe2fb7ba8537cd24a563dcac5",
+    "cacheID": "4d765cfc9ae901e4586944d18ca911b1",
     "id": null,
     "metadata": {},
-    "name": "useMessageAddedSubscriptionSubscription",
+    "name": "useMessageAddedSubscription",
     "operationKind": "subscription",
-    "text": "subscription useMessageAddedSubscriptionSubscription(\n  $chatID: String!\n) {\n  messageAdded(chatID: $chatID) {\n    cursor\n    node {\n      ...MessageItem_data\n      id\n    }\n  }\n}\n\nfragment MessageItem_data on Message {\n  id\n  text\n  senderName\n  senderID\n  creationDate\n}\n"
+    "text": "subscription useMessageAddedSubscription(\n  $chatID: String!\n) {\n  messageAdded(chatID: $chatID) {\n    cursor\n    node {\n      ...MessageItem_data\n      id\n    }\n  }\n}\n\nfragment MessageItem_data on Message {\n  id\n  text\n  senderID\n  creationDate\n}\n"
   }
 };
 })();
 
-(node as any).hash = "bc42a4c9e473557cdb88c72a2399fd51";
+(node as any).hash = "0aa263e8d97d8e027f94ffa6faae1f6d";
 
 export default node;

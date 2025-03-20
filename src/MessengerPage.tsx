@@ -1,12 +1,14 @@
 import React, { FC } from "react";
-import { SafeAreaView } from "react-native";
+import { SafeAreaView, StyleSheet } from "react-native";
 import { MessageInput } from "@/src/MessageInput";
 import { MessagesList } from "@/src/MessagesList";
 import { graphql, useLazyLoadQuery, ConnectionHandler } from "react-relay";
-import { MessengerChatQuery } from "@/src/__generated__/MessengerChatQuery.graphql";
-import { useMessageAddedSubscription } from "@/src/useMessageAddedSubscription";
-import { useMessageRemovedSubscription } from "@/src/useMessageRemovedSubscription";
-import { useMessageUpdatedSubscription } from "@/src/useMessageUpdatedSubscription";
+import { MessengerPageQuery } from "./__generated__/MessengerPageQuery.graphql";
+import { useMessageAdded } from "@/src/useMessageAdded";
+import { useMessageRemoved } from "@/src/useMessageRemoved";
+import { useMessageUpdated } from "@/src/useMessageUpdated";
+import { palette } from "@/src/palette";
+import { useIsTyping } from "@/src/useIsTyping";
 
 type MessengerChatProps = {
   chatID: string;
@@ -21,13 +23,11 @@ export const MessengerPage: FC<MessengerChatProps> = ({ chatID }) => {
     },
   );
 
-  const query = useLazyLoadQuery<MessengerChatQuery>(
+  const query = useLazyLoadQuery<MessengerPageQuery>(
     graphql`
       query MessengerPageQuery($chatID: ID!) {
-        viewer {
-          id
-        }
-        ...MessagesList_query @arguments(chatID: $chatID)
+        ...MessagesList_meta @arguments(chatID: $chatID)
+        ...MessagesList_messages @arguments(chatID: $chatID)
       }
     `,
     {
@@ -38,19 +38,34 @@ export const MessengerPage: FC<MessengerChatProps> = ({ chatID }) => {
     },
   );
 
-  useMessageAddedSubscription(chatID, connectionID);
-  useMessageRemovedSubscription(chatID, connectionID);
-  useMessageUpdatedSubscription(chatID);
+  useMessageAdded(chatID, connectionID);
+  useMessageRemoved(chatID, connectionID);
+  useMessageUpdated(chatID);
+
+  const [isTyping, setIsTyping] = useIsTyping(chatID);
+
+  console.log("isTyping", isTyping);
 
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        backgroundColor: "#fff",
-      }}
-    >
-      <MessagesList queryRef={query} chunkSize={10} userID={query.viewer.id} />
-      <MessageInput connectionID={connectionID} chatID={chatID} />
+    <SafeAreaView style={styles.container}>
+      <MessagesList
+        messagesRef={query}
+        metaRef={query}
+        chunkSize={20}
+        isTypingUser={isTyping}
+      />
+      <MessageInput
+        connectionID={connectionID}
+        chatID={chatID}
+        onType={setIsTyping}
+      />
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: palette.white,
+  },
+});

@@ -12,7 +12,7 @@ type CreateMessageData = {
   chatID: string;
 };
 
-type Message = {
+export type MessageRecord = {
   id: string;
   text: string;
   senderID: string;
@@ -22,9 +22,9 @@ type Message = {
 
 @Injectable()
 export class MessagesService {
-  private messages: Message[] = [];
+  private messages: MessageRecord[] = [];
 
-  async create(data: CreateMessageData): Promise<Message> {
+  async create(data: CreateMessageData): Promise<MessageRecord> {
     const message = {
       id: uid(10),
       text: data.text,
@@ -37,18 +37,75 @@ export class MessagesService {
     return message;
   }
 
-  async findOneById(id: string): Promise<Message> {
+  async findOneById(id: string): Promise<MessageRecord> {
     return this.messages.find((message) => message.id === id);
   }
 
-  async findAll(messagesArgs: MessagesArgs): Promise<Message[]> {
-    const cursor = messagesArgs.before
-      ? new Date(decode(messagesArgs.before))
-      : new Date();
+  sortedMessages() {
+    return this.messages.sort(
+      (b, a) => b.creationDate.getTime() - a.creationDate.getTime(),
+    );
+  }
 
-    return this.messages
-      .sort((a, b) => b.creationDate.getTime() - a.creationDate.getTime())
-      .filter((message) => message.creationDate < cursor);
+  async getPagintated(messagesArgs: MessagesArgs) {
+    const sortedList = this.sortedMessages();
+
+    let result = [];
+
+    if (messagesArgs.last) {
+      const beforeCursor = messagesArgs.before
+        ? new Date(decode(messagesArgs.before))
+        : new Date();
+
+      const filtered = sortedList.filter(
+        (message) => message.creationDate < beforeCursor,
+      );
+
+      result = filtered.slice(
+        filtered.length >= messagesArgs.last
+          ? filtered.length - messagesArgs.last
+          : 0,
+        filtered.length,
+      );
+    }
+
+    if (messagesArgs.first) {
+      const afterCursor = messagesArgs.after
+        ? new Date(decode(messagesArgs.after))
+        : new Date(0);
+
+      const filtered = sortedList.filter(
+        (message) => message.creationDate > afterCursor,
+      );
+
+      result = filtered.slice(
+        0,
+        filtered.length >= messagesArgs.first
+          ? messagesArgs.first
+          : filtered.length,
+      );
+    }
+
+    let startCursor,
+      endCursor,
+      hasPreviousPage = false,
+      hasNextPage = false;
+
+    if (result.length > 0) {
+      const startDate = result[0].creationDate;
+      const endDate = result[result.length - 1].creationDate;
+      startCursor = encode(startDate.toISOString());
+      endCursor = encode(endDate.toISOString());
+
+      hasPreviousPage = sortedList.some(
+        (message) => message.creationDate < startDate,
+      );
+      hasNextPage = sortedList.some(
+        (message) => message.creationDate > endDate,
+      );
+    }
+
+    return { result, hasPreviousPage, startCursor, endCursor, hasNextPage };
   }
 
   async remove(id: string): Promise<string> {
